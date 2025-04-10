@@ -1,0 +1,40 @@
+name: Deploy React App to GitHub Pages
+
+on:
+  push:
+    branches: [ statelog ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Install Bun
+      uses: oven-sh/setup-bun@v1
+      with:
+        bun-version: latest
+        
+    - name: Install Dependencies
+      run: bun install
+        
+    - name: Update package.json
+      run: |
+        # Add homepage to package.json using Bun
+        bun x npm pkg set homepage=https://blhafner.github.io/statelog_explorer2.0/
+        
+    - name: Build
+      run: bun run build
+      
+    - name: Deploy
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        branch: gh-pages
+        folder: dist  # Assuming Vite's output directory is 'dist'

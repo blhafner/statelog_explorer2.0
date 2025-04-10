@@ -1,0 +1,40 @@
+name: Deploy React App to GitHub Pages
+
+on:
+  push:
+    branches: [ statelog ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18' # Upgrade to Node 18 which has better crypto support
+        
+    - name: Install Dependencies
+      run: |
+        npm install
+        npm install gh-pages --save-dev
+        
+    - name: Update package.json
+      run: |
+        # Add homepage to package.json
+        npm pkg set homepage=https://blhafner.github.io/statelog_explorer2.0/
+        
+    - name: Build
+      run: |
+        # Set NODE_OPTIONS to enable the Node.js crypto module
+        export NODE_OPTIONS=--openssl-legacy-provider
+        npm run build
+      
+    - name: Deploy
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        branch: gh-pages
+        folder: dist # Changed from 'build' to 'dist' since you're using Vite
